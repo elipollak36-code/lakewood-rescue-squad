@@ -102,6 +102,7 @@ button.unit:active{border-color:var(--u)}
 .chip .k{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .chip .v{font-family:var(--display);font-size:20px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #hTime.low{color:var(--red)}
+#hWhere{font-size:15px;white-space:normal;line-height:1.15}
 #hud .bar{pointer-events:none}
 #hint{margin:auto auto 96px;background:rgba(9,16,28,.82);border-radius:12px;padding:10px 16px;font-weight:700}
 #boost{pointer-events:auto;position:absolute;right:14px;bottom:18px;width:104px;height:104px;border-radius:50%;background:var(--red);
@@ -130,7 +131,7 @@ button.unit:active{border-color:var(--u)}
   <section id="home" class="screen">
     <div class="panel">
       <div class="lightbar"><i></i><i></i><i></i></div>
-      <p class="eyebrow">Lakewood, New Jersey</p>
+      <p class="eyebrow">Lakewood, New Jersey. Real streets.</p>
       <h1>Lakewood Rescue Squad</h1>
       <p>Calls are coming in. Send the right team, race to the scene and get the job done.</p>
       <div class="rankrow">
@@ -219,33 +220,45 @@ var UNITS={
 };
 var ORDER=['chav','hatz','shom','pol'];
 
+var ROUTES={
+ clifton:{n:'Clifton Ave',x:['2nd St','4th St','6th St','8th St','10th St','12th St']},
+ lex:{n:'Lexington Ave',x:['3rd St','5th St','7th St','9th St','11th St','13th St']},
+ forest:{n:'Forest Ave',x:['4th St','6th St','8th St','10th St','12th St','14th St']},
+ madison:{n:'Madison Ave (Rt 9)',x:['2nd St','5th St','7th St','9th St','Kennedy Blvd','County Line Rd']},
+ river:{n:'River Ave (Rt 9)',x:['Central Ave','James St','Pine St','Prospect St','Chestnut St','Cross St']},
+ county:{n:'E County Line Rd',x:['Madison Ave','Somerset Ave','Ridge Ave','Joe Parker Rd','Brook Rd']},
+ central:{n:'Central Ave',x:['Carey St','Sunset Rd','Miller Rd','Hope Chapel Rd']},
+ newh:{n:'New Hampshire Ave',x:['Route 70','Pine St','Cedarbridge Ave','Ocean Ave']},
+ seventh:{n:'7th St',x:['Forest Ave','Madison Ave','Lexington Ave','Clifton Ave','Monmouth Ave','Princeton Ave']},
+ prospect:{n:'Prospect St',x:['River Ave','Williams St','Massachusetts Ave']}
+};
 var CALLS=[
- {u:'chav',t:'A car will not start. It needs a jump.',w:'Madison Avenue',job:'Hook up the jumper cables',done:'The engine is running again.'},
- {u:'chav',t:'A car needs a boost outside the grocery.',w:'Route 9',job:'Boost the battery',done:'Boosted. They are on their way.'},
- {u:'chav',t:'A minivan has a flat tire and the family is stuck.',w:'Clifton Avenue',job:'Change the flat tire',done:'Tire changed. The family is on their way.'},
- {u:'chav',t:'A family is locked out of their house.',w:'14th Street',job:'Open the front door',done:'Door open. Everyone is inside.'},
- {u:'chav',t:'Police asked for help with traffic at a crash.',w:'County Line Road',job:'Set out the cones',done:'Traffic is moving safely. PD says thank you.'},
- {u:'chav',e:1,t:'A child is locked inside a car.',w:'Forest Avenue',job:'Get the car door open',done:'Door open. The child is safe.'},
- {u:'chav',e:1,t:'A baby is locked inside a car in a parking lot.',w:'Cedarbridge Avenue',job:'Get the car door open',done:'Door open. The baby is safe.'},
- {u:'chav',e:1,t:'A child is locked inside a house alone.',w:'Central Avenue',job:'Get the front door open',done:'Door open. The child is safe.'},
+ {u:'chav',r:'madison',d:'9th St',t:'A car will not start. It needs a jump.',job:'Hook up the jumper cables',done:'The engine is running again.'},
+ {u:'chav',r:'river',d:'Chestnut St',t:'A car needs a boost outside the grocery.',job:'Boost the battery',done:'Boosted. They are on their way.'},
+ {u:'chav',r:'county',d:'Joe Parker Rd',t:'A minivan has a flat tire and the family is stuck.',job:'Change the flat tire',done:'Tire changed. The family is on their way.'},
+ {u:'chav',r:'lex',d:'11th St',t:'A family is locked out of their house.',job:'Open the front door',done:'Door open. Everyone is inside.'},
+ {u:'chav',r:'newh',d:'Route 70',t:'Police asked for help with traffic at a crash.',job:'Set out the cones',done:'Traffic is moving safely. PD says thank you.'},
+ {u:'chav',e:1,r:'clifton',d:'4th St',t:'A child is locked inside a car.',job:'Get the car door open',done:'Door open. The child is safe.'},
+ {u:'chav',e:1,r:'river',d:'Prospect St',t:'A baby is locked inside a car in a parking lot.',job:'Get the car door open',done:'Door open. The baby is safe.'},
+ {u:'chav',e:1,r:'central',d:'Miller Rd',t:'A child is locked inside a house alone.',job:'Get the front door open',done:'Door open. The child is safe.'},
 
- {u:'hatz',e:1,t:'A boy fell off his bike and hurt his arm.',w:'Central Avenue',job:'Wrap the arm',done:'Arm wrapped. He is going to be fine.'},
- {u:'hatz',e:1,t:'A man feels very dizzy in shul.',w:'Forest Avenue',job:'Check his pulse',done:'He is feeling better already.'},
- {u:'hatz',e:1,t:'A girl was stung by a bee and her hand is swelling up.',w:'Lake Carasaljo',job:'Treat the sting',done:'The swelling is going down.'},
- {u:'hatz',e:1,t:'A boy bumped his head hard at the playground.',w:'County Line Road',job:'Ice the bump',done:'Checked and cleared. Back to playing soon.'},
- {u:'hatz',e:1,t:'A grandfather is having trouble breathing.',w:'Squankum Road',job:'Give him oxygen',done:'He is breathing easy now.'},
+ {u:'hatz',e:1,r:'seventh',d:'Princeton Ave',t:'A boy fell off his bike and hurt his arm.',job:'Wrap the arm',done:'Arm wrapped. He is going to be fine.'},
+ {u:'hatz',e:1,r:'forest',d:'10th St',t:'A man feels very dizzy in shul.',job:'Check his pulse',done:'He is feeling better already.'},
+ {u:'hatz',e:1,r:'river',d:'Central Ave',t:'A girl was stung by a bee at the lake and her hand is swelling up.',job:'Treat the sting',done:'The swelling is going down.'},
+ {u:'hatz',e:1,r:'county',d:'Brook Rd',t:'A boy bumped his head hard at the playground.',job:'Ice the bump',done:'Checked and cleared. Back to playing soon.'},
+ {u:'hatz',e:1,r:'central',d:'Sunset Rd',t:'A grandfather is having trouble breathing.',job:'Give him oxygen',done:'He is breathing easy now.'},
 
- {u:'shom',t:'A suspicious person is walking down the block trying car door handles.',w:'14th Street',job:'Patrol the block',done:'The block is safe again.'},
- {u:'shom',t:'A stranger is looking into the windows of a house.',w:'Clifton Avenue',job:'Check around the house',done:'All clear. The family feels safe.'},
- {u:'shom',t:'A car nobody knows keeps circling the same block.',w:'Madison Avenue',job:'Get the license plate',done:'Plate reported. The car left the area.'},
- {u:'shom',t:'A suspicious person is hanging around the yeshiva late at night.',w:'Forest Avenue',job:'Search the grounds',done:'Grounds checked. All clear.'},
- {u:'shom',t:'Someone is following the delivery truck and eyeing the packages.',w:'Central Avenue',job:'Check the cameras',done:'Caught on camera. Packages are safe.'},
+ {u:'shom',r:'lex',d:'5th St',t:'A suspicious person is walking down the block trying car door handles.',job:'Patrol the block',done:'The block is safe again.'},
+ {u:'shom',r:'forest',d:'12th St',t:'A stranger is looking into the windows of a house.',job:'Check around the house',done:'All clear. The family feels safe.'},
+ {u:'shom',r:'seventh',d:'Monmouth Ave',t:'A car nobody knows keeps circling the same block.',job:'Get the license plate',done:'Plate reported. The car left the area.'},
+ {u:'shom',r:'madison',d:'7th St',t:'A suspicious person is hanging around the yeshiva late at night.',job:'Search the grounds',done:'Grounds checked. All clear.'},
+ {u:'shom',r:'prospect',d:'Massachusetts Ave',t:'Someone is following the delivery truck and eyeing the packages.',job:'Check the cameras',done:'Caught on camera. Packages are safe.'},
 
- {u:'pol',e:1,t:'Two cars crashed at the corner.',w:'County Line Road',job:'Secure the crash',done:'Everyone is okay. The corner is clear.'},
- {u:'pol',e:1,t:'The alarm is ringing at the pizza store and it is closed.',w:'Clifton Avenue',job:'Check every door',done:'All secure. False alarm.'},
- {u:'pol',e:1,t:'Someone broke a window at the grocery and ran away.',w:'Route 9',job:'Collect the clues',done:'Clues collected. Case opened.'},
- {u:'pol',e:1,t:'A car is speeding past the school again and again.',w:'Squankum Road',job:'Stop the speeding car',done:'Driver stopped and ticketed.'},
- {u:'pol',e:1,t:'Someone is breaking into a garage right now.',w:'Cedarbridge Avenue',job:'Surround the garage',done:'Caught. Good work.'}
+ {u:'pol',e:1,r:'madison',d:'County Line Rd',t:'Two cars crashed at the corner.',job:'Secure the crash',done:'Everyone is okay. The corner is clear.'},
+ {u:'pol',e:1,r:'clifton',d:'2nd St',t:'The alarm is ringing at the pizza store and it is closed.',job:'Check every door',done:'All secure. False alarm.'},
+ {u:'pol',e:1,r:'newh',d:'Cedarbridge Ave',t:'Someone broke a window at the grocery and ran away.',job:'Collect the clues',done:'Clues collected. Case opened.'},
+ {u:'pol',e:1,r:'county',d:'Somerset Ave',t:'A car is speeding past the school again and again.',job:'Stop the speeding car',done:'Driver stopped and ticketed.'},
+ {u:'pol',e:1,r:'prospect',d:'Williams St',t:'Someone is breaking into a garage right now.',job:'Surround the garage',done:'Caught. Good work.'}
 ];
 
 /* ---------- sound ---------- */
@@ -299,13 +312,15 @@ function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx
   ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath()}
 
 var state='home',scroll=0,clock=0,shift=null,cur=null,drive=null,scene=null;
-var LANE_SPD=[150,195,170,215];
+var LANE_SPD=[-110,-90,170,215];
 var CAR_COLS=['#c9503f','#4f7cac','#8d99ae','#e0b15c','#6a8d73','#b56576','#d9d9d9','#3d405b'];
 var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 function newDrive(){
   var r=rankOf(save.pts),max=520*(1+0.04*r)*(r>=3?1.15:1),goal=9000+r*1400;
-  drive={px:rx+lw*1.5,tx:rx+lw*1.5,py:H*0.76,speed:120,max:max,goal:goal,dist:0,time:goal/(max*0.7)*(cur.e?0.88:1),
+  var n=Math.max(2,Math.round(goal/1500)),pool=ROUTES[cur.r].x.filter(function(x){return x!==cur.d}),ints=[],j;
+  for(j=1;j<=n;j++)ints.push({at:goal*j/n,name:j===n?cur.d:pool[(j-1)%pool.length]});
+  drive={ints:ints,px:rx+lw*2.5,tx:rx+lw*2.5,py:H*0.76,speed:120,max:max,goal:goal,dist:0,time:goal/(max*0.7)*(cur.e?0.88:1),
     bumps:0,stars:0,invuln:0,shake:0,boostT:0,boosts:r>=1?2:0,cars:[],items:[],spawn:0,starAcc:400,
     gap:Math.max(150,270-r*22),two:0.2+0.08*r,night:r>=2&&Math.random()<0.5,rank:r,hint:3,keyL:false,keyR:false};
 }
@@ -324,7 +339,7 @@ function update(dt){
     var left=d.goal-d.dist;
     d.spawn+=mv;
     if(d.spawn>=d.gap&&left>H*0.9){
-      d.spawn=0;var ln=Math.floor(Math.random()*4);addCar(ln);
+      d.spawn=0;var ln=Math.random()<0.3?Math.floor(Math.random()*2):2+Math.floor(Math.random()*2);addCar(ln);
       if(Math.random()<d.two){var l2=(ln+1+Math.floor(Math.random()*3))%4;addCar(l2)}
     }
     d.starAcc+=mv;
@@ -332,6 +347,8 @@ function update(dt){
     var ch=cw*(d.rank>=3?2.15:1.9),i,c;
     for(i=d.cars.length-1;i>=0;i--){
       c=d.cars[i];c.y+=(d.speed-c.spd)*dt;
+      if(cur.e&&c.obey&&!c.on&&c.tx==null&&c.y<d.py&&d.py-c.y<H*0.55&&Math.abs(c.x-d.px)<lw*0.7)pullOver(c);
+      if(c.tx!=null)c.x+=clamp(c.tx-c.x,-lw*2.2*dt,lw*2.2*dt);
       if(c.y>H+200||c.y<-500){d.cars.splice(i,1);continue}
       if(d.invuln<=0&&Math.abs(c.x-d.px)<(c.w+cw)*0.48&&Math.abs(c.y-d.py)<(c.h+ch)*0.45){
         d.bumps++;d.speed*=0.35;d.invuln=1.3;d.shake=reduce?0:0.35;d.boostT=0;beep(140,0.25,'square',0.09,60);
@@ -354,7 +371,12 @@ function update(dt){
 function addCar(lane){
   var w=lw*(0.5+Math.random()*0.08),long=Math.random()<0.18;
   drive.cars.push({x:rx+(lane+0.5)*lw,y:-140-Math.random()*60,w:w,h:w*(long?2.6:1.85),spd:LANE_SPD[lane],
-    col:CAR_COLS[Math.floor(Math.random()*CAR_COLS.length)],van:long});
+    col:CAR_COLS[Math.floor(Math.random()*CAR_COLS.length)],van:long,on:lane<2,lane:lane,obey:Math.random()<0.7,tx:null});
+}
+function pullOver(c){
+  if(c.lane===3){c.tx=rx+rw-c.w*0.3;return}
+  var k,o;for(k=0;k<drive.cars.length;k++){o=drive.cars[k];if(o!==c&&o.lane===3&&Math.abs(o.y-c.y)<(o.h+c.h)*0.7)return}
+  c.lane=3;c.tx=rx+3.5*lw;c.spd=LANE_SPD[3];
 }
 
 /* ---------- drawing ---------- */
@@ -369,10 +391,12 @@ function draw(){
   c.fillStyle='#2b2f36';c.fillRect(rx,-10,rw,H+20);
   c.fillStyle='#e9e4d4';c.fillRect(rx+5,-10,3,H+20);c.fillRect(rx+rw-8,-10,3,H+20);
   var per=110,off=scroll%per,l,y;
-  for(l=1;l<4;l++)for(y=-per+off;y<H+10;y+=per)c.fillRect(rx+l*lw-2,y,4,58);
+  for(l=1;l<4;l+=2)for(y=-per+off;y<H+10;y+=per)c.fillRect(rx+l*lw-2,y,4,58);
+  c.fillStyle='#e8b923';c.fillRect(rx+2*lw-5,-10,3,H+20);c.fillRect(rx+2*lw+2,-10,3,H+20);
 
   if(drive&&state!=='home'&&state!=='call'){
     var d=drive,fy=d.py-(d.goal-d.dist)-lw*1.4;
+    drawCrossings(d);
     if(fy>-120){
       var s=rw/16,k,j;
       for(k=0;k<16;k++)for(j=0;j<2;j++){c.fillStyle=((k+j)%2)?'#f4f1e8':'#111';c.fillRect(rx+k*s,fy+j*s,s+0.5,s+0.5)}
@@ -413,6 +437,26 @@ function drawSides(){
     }
   }
 }
+function drawCrossings(d){
+  var c=ctx,bh=lw*2.6,q,it,cy,x,tw,sw;
+  for(q=0;q<d.ints.length;q++){
+    it=d.ints[q];cy=d.py-(it.at-d.dist)-lw*0.3;
+    if(cy<-bh||cy>H+bh)continue;
+    c.fillStyle='#b9b4a6';c.fillRect(-10,cy-bh/2-10,rx+10,bh+20);c.fillRect(rx+rw,cy-bh/2-10,W,bh+20);
+    c.fillStyle='#2b2f36';c.fillRect(-10,cy-bh/2,W+20,bh);
+    c.fillStyle='#e8b923';c.fillRect(-10,cy-2,rx+10,4);c.fillRect(rx+rw,cy-2,W,4);
+    c.fillStyle='#e9e4d4';
+    for(x=rx+lw*0.12;x<rx+rw-lw*0.1;x+=lw*0.4){c.fillRect(x,cy-bh/2-16,lw*0.2,12);c.fillRect(x,cy+bh/2+4,lw*0.2,12)}
+    c.font='700 13px Rubik, Arial, sans-serif';tw=c.measureText(it.name).width;sw=tw+16;
+    x=Math.min(W-6-sw,rx+rw+18);
+    c.fillStyle='#f4f1e8';rr(x-2,cy-bh/2-46,sw+4,26,5);c.fill();
+    c.fillStyle='#0b6b3a';rr(x,cy-bh/2-44,sw,22,4);c.fill();
+    c.fillStyle='#fff';c.textAlign='left';c.textBaseline='middle';c.fillText(it.name,x+8,cy-bh/2-33);
+    c.fillStyle='#14202f';rr(rx-9,cy-bh/2-40,12,30,3);c.fill();
+    c.fillStyle='#2ec27e';c.beginPath();c.arc(rx-3,cy-bh/2-17,3.5,0,6.283);c.fill();
+    c.fillStyle='#5a1f25';c.beginPath();c.arc(rx-3,cy-bh/2-33,3.5,0,6.283);c.fill();
+  }
+}
 function drawStar(x,y,r){
   var c=ctx,i;c.save();c.translate(x,y);c.rotate(clock*2);c.fillStyle='#ffb703';c.strokeStyle='#7a5600';c.lineWidth=2;c.beginPath();
   for(i=0;i<10;i++){var a=i*Math.PI/5-Math.PI/2,q=i%2?r*0.45:r;c.lineTo(Math.cos(a)*q,Math.sin(a)*q)}
@@ -420,12 +464,15 @@ function drawStar(x,y,r){
 }
 function drawCar(v){
   var c=ctx,x=v.x-v.w/2,y=v.y-v.h/2;
+  c.save();if(v.on){c.translate(v.x,v.y);c.rotate(Math.PI);c.translate(-v.x,-v.y)}
   c.fillStyle='rgba(0,0,0,0.25)';rr(x+3,y+5,v.w,v.h,v.w*0.22);c.fill();
   c.fillStyle=v.col;rr(x,y,v.w,v.h,v.w*0.22);c.fill();
   c.fillStyle='#16202e';
   rr(x+v.w*0.14,y+v.h*0.16,v.w*0.72,v.h*0.16,4);c.fill();
   rr(x+v.w*0.14,y+v.h*(v.van?0.8:0.68),v.w*0.72,v.h*0.1,4);c.fill();
   c.fillStyle='#e63946';c.fillRect(x+v.w*0.1,y+v.h-5,v.w*0.2,4);c.fillRect(x+v.w*0.7,y+v.h-5,v.w*0.2,4);
+  c.fillStyle='#fff7d6';c.fillRect(x+v.w*0.1,y+1,v.w*0.2,3);c.fillRect(x+v.w*0.7,y+1,v.w*0.2,3);
+  c.restore();
 }
 function drawRescue(px,py,w,h,u,rank,boost){
   var c=ctx,x=px-w/2,y=py-h/2,on=Math.floor(clock*6)%2===0;
@@ -479,7 +526,7 @@ $('startBtn').addEventListener('click',function(){
   shift={i:0,calls:list,total:0};nextCall();
 });
 function nextCall(){
-  cur=shift.calls[shift.i];cur.right=false;state='call';drive=null;
+  cur=shift.calls[shift.i];cur.right=false;cur.w=ROUTES[cur.r].n+' & '+cur.d;state='call';drive=null;
   var r=rankOf(save.pts);
   $('callNo').textContent=(cur.e?'Emergency call ':'Call ')+(shift.i+1)+' of '+shift.calls.length;$('callNo').classList.toggle('hot',!!cur.e);
   $('callText').textContent=(save.name?'Dispatch to '+RANKS[r].n+' '+save.name+'. ':'Dispatch to all units. ')+cur.t;
